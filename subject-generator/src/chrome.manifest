@@ -1,0 +1,4 @@
+content		subject-generator							chrome/content/
+locale		subject-generator							en-US						locale/en-US/
+overlay 	chrome://messenger/content/messengercompose/messengercompose.xul 	chrome://subject-generator/content/messengercomposeOverlay.xul
+

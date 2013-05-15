@@ -1,0 +1,3 @@
+content   	awn-unread-count				chrome/content/
+locale		awn-unread-count				en-US								locale/en-US/
+overlay 	chrome://messenger/content/messenger.xul	chrome://awn-unread-count/content/awn-unread-count.xul

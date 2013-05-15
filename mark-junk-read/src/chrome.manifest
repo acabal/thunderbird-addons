@@ -1,0 +1,3 @@
+content		mark-junk-read					chrome/content/
+locale		mark-junk-read					en-US								locale/en-US/
+overlay 	chrome://messenger/content/messenger.xul	chrome://mark-junk-read/content/mark-junk-read.xul
