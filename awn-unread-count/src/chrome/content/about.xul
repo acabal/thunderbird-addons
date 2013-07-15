@@ -6,7 +6,7 @@
   <groupbox align="center" orient="horizontal">
     <vbox>
       <label value="AWN Unread Count" style="font-weight: bold; font-size: x-large;"/>
-      <label value="Version 1.01"/>
+      <label value="Version 1.02"/>
       <separator class="thin"/>
       <label value="Created by" style="font-weight: bold;"/>
       <label value="Alex Cabal"/>

@@ -1,3 +1,5 @@
+Components.utils.import("resource://app/modules/iteratorUtils.jsm");
+
 var awnUnreadCount = {
 	MSG_FOLDER_FLAG_MAIL: 0x0004,
 	MSG_FOLDER_INBOX: 0x00001000,
@@ -72,12 +74,9 @@ var awnUnreadCount = {
 	},
 	
 	performUnreadCount: function() {
-		var acctMgr = Components.classes["@mozilla.org/messenger/account-manager;1"].getService(Components.interfaces.nsIMsgAccountManager);
-		var accounts = acctMgr.accounts;
 		var totalCount = 0;
 		
-		for (var i = 0; i < accounts.Count(); i++) {
-			var account = accounts.QueryElementAt(i, Components.interfaces.nsIMsgAccount);
+		for each(let account in fixIterator(MailServices.accounts.accounts, Components.interfaces.nsIMsgAccount)){
 			var rootFolder = account.incomingServer.rootFolder; // nsIMsgFolder            
 			if (rootFolder.hasSubFolders) {
 				totalCount += awnUnreadCount.getTotalCount(rootFolder);
