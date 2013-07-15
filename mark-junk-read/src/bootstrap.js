@@ -1,13 +1,22 @@
+Components.utils.import("resource://app/modules/iteratorUtils.jsm");
+Components.utils.import("resource://app/modules/mailServices.js");
+Components.utils.import("resource://gre/modules/XPCOMUtils.jsm");
+
 var markJunkRead = {
 	MSG_FOLDER_JUNK: 0x40000000,
 	MSG_FOLDER_FLAG_MAIL: 0x0004,
 	timeoutId: -1,
 	mailSession: '',
 	notifyFlags: '',
+	timer: Components.classes["@mozilla.org/timer;1"].createInstance(Components.interfaces.nsITimer),
+	mailServices: {},
+ 	timerCallback: {
+		notify: function(timer){
+			markJunkRead.markAccountsRead();
+		}
+	},
 
 	onLoad: function(e) {
- 		//Run this function immediately on startup to clear junk folders
-		markJunkRead.onItemCountChanged();
 	},
 
 	folderListener: {
@@ -35,22 +44,16 @@ var markJunkRead = {
 		OnItemUnicharPropertyChanged: function(item, property, oldValue, newValue) {}
 	},
 	
-	onItemCountChanged: function(){
-		if(this.timeoutId != -1){
-			window.clearTimeout(this.timeoutId);
-		}
-		
-		// Schedule on the main thread
-		this.timeoutId = window.setTimeout(function(){ markJunkRead.markAccountsRead(); }, 1000, this);
+	onItemCountChanged: function(){		
+		//We set a timeout so that if there are many events happening at once (within one second), we only run the function one time.
+		//This prevents recursion errors.
+		this.timer.cancel();
+		this.timer.initWithCallback(this.timerCallback, 1000, Components.interfaces.nsITimer.TYPE_ONE_SHOT);
 	},
 	
 	markAccountsRead: function(){
-		var acctMgr = Components.classes["@mozilla.org/messenger/account-manager;1"].getService(Components.interfaces.nsIMsgAccountManager);
-		var accounts = acctMgr.accounts;
-		
-		for(var i = 0; i < accounts.Count(); i++){
-			var account = accounts.QueryElementAt(i, Components.interfaces.nsIMsgAccount);
-			var rootFolder = account.incomingServer.rootFolder; // nsIMsgFolder            
+		for each(let account in fixIterator(this.mailServices.accounts.accounts, Components.interfaces.nsIMsgAccount)){
+			var rootFolder = account.incomingServer.rootFolder; //nsIMsgFolder            
 			if(rootFolder.hasSubFolders){
 				markJunkRead.markJunkRead(rootFolder);
 			}
@@ -73,10 +76,25 @@ var markJunkRead = {
 	}
 };
 
+function startup(data, reason){
+	//Set up the core object
+	markJunkRead.mailSession = Components.classes["@mozilla.org/messenger/services/session;1"].getService(Components.interfaces.nsIMsgMailSession);
+	markJunkRead.notifyFlags = Components.interfaces.nsIFolderListener.all;
+	markJunkRead.mailSession.AddFolderListener(markJunkRead.folderListener, markJunkRead.notifyFlags);
+	
+	XPCOMUtils.defineLazyServiceGetter(markJunkRead.mailServices, "accounts", "@mozilla.org/messenger/account-manager;1", "nsIMsgAccountManager");
 
-//Plugin entry point
-window.addEventListener("load", function(e) { markJunkRead.onLoad(e); }, false);
+	//Run this function immediately on startup to clear junk folders
+	markJunkRead.onItemCountChanged();
+}
 
-markJunkRead.mailSession = Components.classes["@mozilla.org/messenger/services/session;1"].getService(Components.interfaces.nsIMsgMailSession);
-markJunkRead.notifyFlags = Components.interfaces.nsIFolderListener.all;
-markJunkRead.mailSession.AddFolderListener(markJunkRead.folderListener, markJunkRead.notifyFlags);
+function install(data, reason) {
+}
+
+function shutdown(data, reason){
+	markJunkRead.mailSession.RemoveFolderListener(markJunkRead.folderListener);
+	markJunkRead.timer.cancel();
+}
+
+function uninstall(data, reason){
+}
