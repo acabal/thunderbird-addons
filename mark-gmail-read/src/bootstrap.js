@@ -1,3 +1,7 @@
+Components.utils.import("resource://app/modules/iteratorUtils.jsm");
+Components.utils.import("resource://app/modules/mailServices.js");
+Components.utils.import("resource://gre/modules/XPCOMUtils.jsm");
+
 var markGmailRead = {
 	MSG_FOLDER_GMAIL: '[Gmail]',
 	MSG_FOLDER_GMAIL_ALL_MAIL: 'All Mail',
@@ -7,10 +11,15 @@ var markGmailRead = {
 	timeoutId: -1,
 	mailSession: '',
 	notifyFlags: '',
+	timer: Components.classes["@mozilla.org/timer;1"].createInstance(Components.interfaces.nsITimer),
+	mailServices: {},
+ 	timerCallback: {
+		notify: function(timer){
+			markGmailRead.markAllGmailRead();
+		}
+	},
 
 	onLoad: function(e) {
- 		//Run this function immediately on startup to clear Gmail folders
-		markGmailRead.onItemCountChanged();
 	},
 
 	folderListener: {
@@ -39,20 +48,14 @@ var markGmailRead = {
 	},
 	
 	onItemCountChanged: function(){
-		if(this.timeoutId != -1){
-			window.clearTimeout(this.timeoutId);
-		}
-		
-		// Schedule on the main thread
-		this.timeoutId = window.setTimeout(function(){ markGmailRead.markAllGmailRead(); }, 1000, this);
+		//We set a timeout so that if there are many events happening at once (within one second), we only run the function one time.
+		//This prevents recursion errors.
+		this.timer.cancel();
+		this.timer.initWithCallback(this.timerCallback, 1000, Components.interfaces.nsITimer.TYPE_ONE_SHOT);
 	},
 	
 	markAllGmailRead: function(){
-		var acctMgr = Components.classes["@mozilla.org/messenger/account-manager;1"].getService(Components.interfaces.nsIMsgAccountManager);
-		var accounts = acctMgr.accounts;
-		
-		for(var i = 0; i < accounts.Count(); i++){
-			var account = accounts.QueryElementAt(i, Components.interfaces.nsIMsgAccount);
+		for each(let account in fixIterator(this.mailServices.accounts.accounts, Components.interfaces.nsIMsgAccount)){
 			var rootFolder = account.incomingServer.rootFolder; // nsIMsgFolder            
 			if(rootFolder.hasSubFolders){
 				markGmailRead.markGmailRead(rootFolder);
@@ -86,10 +89,25 @@ var markGmailRead = {
 	}
 };
 
+function startup(data, reason){
+	//Set up the core object
+	markGmailRead.mailSession = Components.classes["@mozilla.org/messenger/services/session;1"].getService(Components.interfaces.nsIMsgMailSession);
+	markGmailRead.notifyFlags = Components.interfaces.nsIFolderListener.all;
+	markGmailRead.mailSession.AddFolderListener(markGmailRead.folderListener, markGmailRead.notifyFlags);
+	
+	XPCOMUtils.defineLazyServiceGetter(markGmailRead.mailServices, "accounts", "@mozilla.org/messenger/account-manager;1", "nsIMsgAccountManager");
 
-//Plugin entry point
-window.addEventListener("load", function(e) { markGmailRead.onLoad(e); }, false);
+	//Run this function immediately on startup to clear junk folders
+	markGmailRead.onItemCountChanged();
+}
 
-markGmailRead.mailSession = Components.classes["@mozilla.org/messenger/services/session;1"].getService(Components.interfaces.nsIMsgMailSession);
-markGmailRead.notifyFlags = Components.interfaces.nsIFolderListener.all;
-markGmailRead.mailSession.AddFolderListener(markGmailRead.folderListener, markGmailRead.notifyFlags);
+function install(data, reason) {
+}
+
+function shutdown(data, reason){
+	markGmailRead.mailSession.RemoveFolderListener(markGmailRead.folderListener);
+	markGmailRead.timer.cancel();
+}
+
+function uninstall(data, reason){
+}
