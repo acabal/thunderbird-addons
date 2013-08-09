@@ -12,7 +12,7 @@
 		<em:id>hide-local-folders@alexcabal.com</em:id>
 		<em:type>2</em:type>
 		<em:name>Hide Local Folders</em:name>
-		<em:version>1.02</em:version>
+		<em:version>1.03</em:version>
 		<em:description>Hide the "Local Folders" entry from the folder pane.</em:description>
 		<em:aboutURL>chrome://hide-local-folders/content/about.xul</em:aboutURL>
 		<em:creator>Alex Cabal</em:creator>
