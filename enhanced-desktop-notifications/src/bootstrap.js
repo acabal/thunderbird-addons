@@ -12,6 +12,58 @@ var enhancedDesktopNotifications = {
 	mailSession: '',
 	notifyFlags: '',
 	timeoutId: -1,
+	timer: Components.classes["@mozilla.org/timer;1"].createInstance(Components.interfaces.nsITimer),
+	timerCallback: {
+		notify: function(timer){
+			if(enhancedDesktopNotifications.notifications.length == 1){
+				//Only one mail received, show subject and sender.
+				enhancedDesktopNotifications.showNotification(enhancedDesktopNotifications.notifications[0].subject, enhancedDesktopNotifications.notifications[0].body);
+			}
+			else{
+				//Many emails received, group them by account and show 1 notification.
+				var uniqueAccounts = [];
+				
+				for each(var notif in enhancedDesktopNotifications.notifications){
+					var add = true;
+					
+					for each(var account in uniqueAccounts){
+						if(account.name == notif.account){
+							account.count++;
+							add = false;
+						}
+					}
+					
+					if(add){
+						uniqueAccounts.push({"name":notif.account, "count":1});
+					}
+				}
+				
+				body = ""
+				totalCount = 0;
+				for each(account in uniqueAccounts){
+					body += account.name + " has " + account.count + " new message";
+					if(account.count != 1)
+						body += "s";
+						
+					totalCount += account.count;
+					
+					body += "\\n";
+				}
+				
+				//Remove extra newline from body
+				body = body.substring(0, body.length - 2);
+				
+				//Handle the subject of the notification
+				subject = "You have " + totalCount + " new messages";
+
+				enhancedDesktopNotifications.showNotification(subject, body);
+			}
+			
+			//Flush the notification queue
+			enhancedDesktopNotifications.notifications = [];
+		}
+	},
+
 	
 	isInterestingFolder: function(folder){
 		//For flag constants see http://mxr.mozilla.org/mozilla/source/mailnews/base/public/nsMsgFolderFlags.idl
@@ -52,11 +104,11 @@ var enhancedDesktopNotifications = {
 					enhancedDesktopNotifications.addToNotificationQueue(parent.rootFolder.prettiestName, parent.rootFolder.prettiestName + " has new mail", "From " + item.author + "\\n" + item.subject);
 				}
 		},
-		//The following must be defined, or we get exceptions thrown
+		
+		//These functions must be defined or we get exceptions
 		OnItemRemoved: function(parent, item, viewString) {},
 		OnItemPropertyFlagChanged: function(item, property, oldFlag, newFlag) {},
 		OnItemEvent: function(item, event) {},
-		
 		OnFolderLoaded: function(aFolder) {},
 		OnDeleteOrMoveMessagesCompleted: function(aFolder) {},
 		OnItemPropertyChanged: function(parent, item, viewString) {},
@@ -82,63 +134,28 @@ var enhancedDesktopNotifications = {
 	addToNotificationQueue: function(account, subject, body){
 		enhancedDesktopNotifications.notifications.push({"account":account, "subject":subject, "body":body});
 		
-		if(enhancedDesktopNotifications.notifications.length == 1){
+		if(enhancedDesktopNotifications.notifications.length >= 1){
 			//If we have any items in the queue, we set a timeout on this function to execute 1 second later.
 			//That will give us enough time to process many messages added at once.
-			setTimeout(function(){
-				if(enhancedDesktopNotifications.notifications.length == 1){
-					//Only one mail received, show subject and sender.
-					enhancedDesktopNotifications.showNotification(enhancedDesktopNotifications.notifications[0].subject, enhancedDesktopNotifications.notifications[0].body);
-				}
-				else{
-					//Many emails received, group them by account and show 1 notification.
-					var uniqueAccounts = [];
-					
-					for each(var notif in enhancedDesktopNotifications.notifications){
-						var add = true;
-						
-						for each(var account in uniqueAccounts){
-							if(account.name == notif.account){
-								account.count++;
-								add = false;
-							}
-						}
-						
-						if(add){
-							uniqueAccounts.push({"name":notif.account, "count":1});
-						}
-					}
-					
-					body = ""
-					totalCount = 0;
-					for each(account in uniqueAccounts){
-						body += account.name + " has " + account.count + " new message";
-						if(account.count != 1)
-							body += "s";
-							
-						totalCount += account.count;
-						
-						body += "\\n";
-					}
-					
-					//Remove extra newline from body
-					body = body.substring(0, body.length - 2);
-					
-					//Handle the subject of the notification
-					subject = "You have " + totalCount + " new messages";
-
-					enhancedDesktopNotifications.showNotification(subject, body);
-				}
-				
-				//Flush the notification queue
-				enhancedDesktopNotifications.notifications = [];
-			}, 1000)
+			this.timer.cancel();
+			this.timer.initWithCallback(this.timerCallback, 1000, Components.interfaces.nsITimer.TYPE_ONE_SHOT);
 		}
 	}
 };
 
+function startup(data, reason){
+	enhancedDesktopNotifications.mailSession = Components.classes["@mozilla.org/messenger/services/session;1"].getService(Components.interfaces.nsIMsgMailSession);
+	enhancedDesktopNotifications.notifyFlags = Components.interfaces.nsIFolderListener.all;
+	enhancedDesktopNotifications.mailSession.AddFolderListener(enhancedDesktopNotifications.folderListener, enhancedDesktopNotifications.notifyFlags);
+}
 
-//Plugin entry point
-enhancedDesktopNotifications.mailSession = Components.classes["@mozilla.org/messenger/services/session;1"].getService(Components.interfaces.nsIMsgMailSession);
-enhancedDesktopNotifications.notifyFlags = Components.interfaces.nsIFolderListener.all;
-enhancedDesktopNotifications.mailSession.AddFolderListener(enhancedDesktopNotifications.folderListener, enhancedDesktopNotifications.notifyFlags);
+function install(data, reason) {
+}
+
+function shutdown(data, reason){
+	enhancedDesktopNotifications.mailSession.RemoveFolderListener(enhancedDesktopNotifications.folderListener);
+	enhancedDesktopNotifications.timer.cancel();
+}
+
+function uninstall(data, reason){
+}
