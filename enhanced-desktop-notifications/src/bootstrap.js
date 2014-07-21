@@ -63,7 +63,6 @@ var enhancedDesktopNotifications = {
 			enhancedDesktopNotifications.notifications = [];
 		}
 	},
-
 	
 	isInterestingFolder: function(folder){
 		//For flag constants see http://mxr.mozilla.org/mozilla/source/mailnews/base/public/nsMsgFolderFlags.idl
@@ -101,7 +100,7 @@ var enhancedDesktopNotifications = {
 				var y = parent instanceof Components.interfaces.nsIMsgFolder;
 				
 				if(!item.isRead && enhancedDesktopNotifications.isInterestingFolder(parent) && item.subject.indexOf('[SPAM]') == -1){ //only for new items
-					enhancedDesktopNotifications.addToNotificationQueue(parent.rootFolder.prettiestName, parent.rootFolder.prettiestName + " has new mail", "From " + item.author + "\\n" + item.subject);
+					enhancedDesktopNotifications.addToNotificationQueue(parent.rootFolder.prettiestName, parent.rootFolder.prettiestName + " has new mail", "From " + item.mime2DecodedAuthor + "\\n" + item.mime2DecodedSubject);
 				}
 		},
 		
