@@ -121,7 +121,7 @@ var enhancedDesktopNotifications = {
 		var file = Components.classes["@mozilla.org/file/local;1"].createInstance(Components.interfaces.nsIFile);		
 		file.initWithPath("/usr/bin/env");
 		
-		var args = ["notify-send", "--urgency=normal", "--icon=mail-notification", subject, body];
+		var args = ["notify-send", "--urgency=normal", "--app-name=thunderbird", "--icon=mail-notification", subject, body];
 		var process = Components.classes["@mozilla.org/process/util;1"].createInstance(Components.interfaces.nsIProcess);
 		process.init(file);
 		

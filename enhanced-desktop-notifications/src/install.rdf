@@ -5,15 +5,14 @@
 			<Description>
 				<em:id>{3550f703-e582-4d05-9a08-453d09bdfdc6}</em:id> <!-- Thunderbird -->
 				<em:minVersion>5.0</em:minVersion>
-				<em:maxVersion>24.*</em:maxVersion>
+				<em:maxVersion>31.*</em:maxVersion>
 			</Description>
 		</em:targetApplication>
-	
 		<em:id>enhanced-desktop-notifications@alexcabal.com</em:id>
 		<em:type>2</em:type>
 		<em:name>Enhanced Desktop Notifications</em:name>
 		<em:bootstrap>true</em:bootstrap>
-		<em:version>1.02</em:version>
+		<em:version>1.03</em:version>
 		<em:description>Provides enhanced desktop notifications using the notify-send library.</em:description>
 		<em:creator>Alex Cabal</em:creator>
 		<em:developer>Alex Cabal</em:developer>
