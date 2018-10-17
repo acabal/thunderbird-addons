@@ -9,9 +9,6 @@ Uses notify-send to provide new mail notifications with a nicer icon, grouped no
 ### Hide Local Folders
 Hides the "Local Folders" entry in the folder pane.  Local folders will continue to work as usual, they're just not displayed.
 
-### Mark Gmail Read
-Keeps all messages in the [Gmail] IMAP folder marked as read.  Useful for the drafts, spam, and sent messages folder, which frequently accumulate unread messages in Gmail.
-
 ### Mark Junk Read
 Keeps all messages in Thunderbird junk folders, and folders named "junk" or "spam", marked as read.  Useful for IMAP servers that pre-sort junk mail, potentially leaving you with a junk folder constantly filling up with unread messages.
 
