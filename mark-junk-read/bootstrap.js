@@ -1,7 +1,7 @@
 'use strict';
 
-Components.utils.import("resource:///modules/iteratorUtils.jsm");
-Components.utils.import("resource://gre/modules/XPCOMUtils.jsm");
+Components.utils.import('resource:///modules/iteratorUtils.jsm');
+Components.utils.import('resource://gre/modules/XPCOMUtils.jsm');
 
 var markJunkRead = {
 	MSG_FOLDER_JUNK: 0x40000000,
@@ -9,7 +9,7 @@ var markJunkRead = {
 	timeoutId: -1,
 	mailSession: '',
 	notifyFlags: '',
-	timer: Components.classes["@mozilla.org/timer;1"].createInstance(Components.interfaces.nsITimer),
+	timer: Components.classes['@mozilla.org/timer;1'].createInstance(Components.interfaces.nsITimer),
 	mailServices: {},
  	timerCallback: {
 		notify: function(timer){
@@ -28,7 +28,7 @@ var markJunkRead = {
 				markJunkRead.onItemCountChanged();
 		},
 		OnItemPropertyFlagChanged: function(item, property, oldFlag, newFlag){
-			if (property == "Status"){
+			if (property == 'Status'){
 				markJunkRead.onItemCountChanged();
 			}
 		},
@@ -53,9 +53,9 @@ var markJunkRead = {
 	},
 
 	markAccountsRead: function(){
-		var iterator = fixIterator(this.mailServices.accounts.accounts, Components.interfaces.nsIMsgAccount);
+		let iterator = fixIterator(this.mailServices.accounts.accounts, Components.interfaces.nsIMsgAccount);
 
-		var result = iterator.next();
+		let result = iterator.next();
 		while (!result.done) {
 			let account = result.value;
 			let rootFolder = account.incomingServer.rootFolder; // nsIMsgFolder
@@ -67,13 +67,13 @@ var markJunkRead = {
 	},
 
 	markJunkRead: function(rootFolder){
-		var subFolders = rootFolder.getFoldersWithFlags(this.MSG_FOLDER_FLAG_MAIL); // nsIArray
-		var subFoldersEnumerator = subFolders.enumerate();
+		let subFolders = rootFolder.getFoldersWithFlags(this.MSG_FOLDER_FLAG_MAIL); // nsIArray
+		let subFoldersEnumerator = subFolders.enumerate();
 
 		while(subFoldersEnumerator.hasMoreElements()){
 			let folder = subFoldersEnumerator.getNext().QueryInterface(Components.interfaces.nsIMsgFolder);
 
-			if(folder.getFlag(markJunkRead.MSG_FOLDER_JUNK) || folder.prettiestName.toLowerCase() == 'spam' || folder.prettiestName.toLowerCase() == 'junk'){
+			if(folder.getFlag(markJunkRead.MSG_FOLDER_JUNK) || folder.name.toLowerCase() == 'spam' || folder.name.toLowerCase() == 'junk'){
 				if(folder.getNumUnread(false) > 0){
 					folder.markAllMessagesRead(null);
 				}
@@ -84,11 +84,11 @@ var markJunkRead = {
 
 function startup(data, reason){
 	// Set up the core object
-	markJunkRead.mailSession = Components.classes["@mozilla.org/messenger/services/session;1"].getService(Components.interfaces.nsIMsgMailSession);
+	markJunkRead.mailSession = Components.classes['@mozilla.org/messenger/services/session;1'].getService(Components.interfaces.nsIMsgMailSession);
 	markJunkRead.notifyFlags = Components.interfaces.nsIFolderListener.all;
 	markJunkRead.mailSession.AddFolderListener(markJunkRead.folderListener, markJunkRead.notifyFlags);
 
-	XPCOMUtils.defineLazyServiceGetter(markJunkRead.mailServices, "accounts", "@mozilla.org/messenger/account-manager;1", "nsIMsgAccountManager");
+	XPCOMUtils.defineLazyServiceGetter(markJunkRead.mailServices, 'accounts', '@mozilla.org/messenger/account-manager;1', 'nsIMsgAccountManager');
 
 	// Run this function immediately on startup to clear junk folders
 	markJunkRead.onItemCountChanged();

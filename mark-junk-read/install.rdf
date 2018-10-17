@@ -13,7 +13,7 @@
 		<em:type>2</em:type>
 		<em:name>Mark Junk Read</em:name>
 		<em:bootstrap>true</em:bootstrap>
-		<em:version>1.03</em:version>
+		<em:version>1.04</em:version>
 		<em:description>Automatically marks all messages in folders named "spam", "junk", or recognized as junk folders by Thunderbird as read.</em:description>
 		<em:creator>Alex Cabal</em:creator>
 		<em:developer>Alex Cabal</em:developer>
