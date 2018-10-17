@@ -1,9 +1,0 @@
-<overlay id="messengercomposeOverlay" xmlns:html="http://www.w3.org/1999/xhtml" xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#" xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul">
-	<script type="application/javascript" src="chrome://subject-generator/content/subject-generator.js"></script>
-	<toolbar id="composeToolbar2">
-		<toolbarbutton label="Subject!" position="3" onclick="generateSubject();" />
-	</toolbar>
-</overlay>
-
-
-
