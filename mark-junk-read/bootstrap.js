@@ -1,5 +1,6 @@
-Components.utils.import("resource://app/modules/iteratorUtils.jsm");
-Components.utils.import("resource://app/modules/mailServices.js");
+'use strict';
+
+Components.utils.import("resource:///modules/iteratorUtils.jsm");
 Components.utils.import("resource://gre/modules/XPCOMUtils.jsm");
 
 var markJunkRead = {
@@ -34,8 +35,8 @@ var markJunkRead = {
 		OnItemEvent: function(item, event){
 				markJunkRead.onItemCountChanged();
 		},
-		
-		//These functions must be defined or we get exceptions
+
+		// These functions must be defined or we get exceptions
 		OnFolderLoaded: function(aFolder) {},
 		OnDeleteOrMoveMessagesCompleted: function(aFolder) {},
 		OnItemPropertyChanged: function(parent, item, viewString) {},
@@ -43,30 +44,35 @@ var markJunkRead = {
 		OnItemBoolPropertyChanged: function(item, property, oldValue, newValue) {},
 		OnItemUnicharPropertyChanged: function(item, property, oldValue, newValue) {}
 	},
-	
-	onItemCountChanged: function(){		
-		//We set a timeout so that if there are many events happening at once (within one second), we only run the function one time.
-		//This prevents recursion errors.
+
+	onItemCountChanged: function(){
+		// We set a timeout so that if there are many events happening at once (within one second), we only run the function one time.
+		// This prevents recursion errors.
 		this.timer.cancel();
 		this.timer.initWithCallback(this.timerCallback, 1000, Components.interfaces.nsITimer.TYPE_ONE_SHOT);
 	},
-	
+
 	markAccountsRead: function(){
-		for each(let account in fixIterator(this.mailServices.accounts.accounts, Components.interfaces.nsIMsgAccount)){
-			var rootFolder = account.incomingServer.rootFolder; //nsIMsgFolder            
+		var iterator = fixIterator(this.mailServices.accounts.accounts, Components.interfaces.nsIMsgAccount);
+
+		var result = iterator.next();
+		while (!result.done) {
+			let account = result.value;
+			let rootFolder = account.incomingServer.rootFolder; // nsIMsgFolder
 			if(rootFolder.hasSubFolders){
 				markJunkRead.markJunkRead(rootFolder);
 			}
+			result = iterator.next();
 		}
 	},
-	
+
 	markJunkRead: function(rootFolder){
-		var subFolders = rootFolder.getFoldersWithFlags(this.MSG_FOLDER_FLAG_MAIL); //nsIArray
+		var subFolders = rootFolder.getFoldersWithFlags(this.MSG_FOLDER_FLAG_MAIL); // nsIArray
 		var subFoldersEnumerator = subFolders.enumerate();
-		
+
 		while(subFoldersEnumerator.hasMoreElements()){
-			var folder = subFoldersEnumerator.getNext().QueryInterface(Components.interfaces.nsIMsgFolder);
-			
+			let folder = subFoldersEnumerator.getNext().QueryInterface(Components.interfaces.nsIMsgFolder);
+
 			if(folder.getFlag(markJunkRead.MSG_FOLDER_JUNK) || folder.prettiestName.toLowerCase() == 'spam' || folder.prettiestName.toLowerCase() == 'junk'){
 				if(folder.getNumUnread(false) > 0){
 					folder.markAllMessagesRead(null);
@@ -77,14 +83,14 @@ var markJunkRead = {
 };
 
 function startup(data, reason){
-	//Set up the core object
+	// Set up the core object
 	markJunkRead.mailSession = Components.classes["@mozilla.org/messenger/services/session;1"].getService(Components.interfaces.nsIMsgMailSession);
 	markJunkRead.notifyFlags = Components.interfaces.nsIFolderListener.all;
 	markJunkRead.mailSession.AddFolderListener(markJunkRead.folderListener, markJunkRead.notifyFlags);
-	
+
 	XPCOMUtils.defineLazyServiceGetter(markJunkRead.mailServices, "accounts", "@mozilla.org/messenger/account-manager;1", "nsIMsgAccountManager");
 
-	//Run this function immediately on startup to clear junk folders
+	// Run this function immediately on startup to clear junk folders
 	markJunkRead.onItemCountChanged();
 }
 
