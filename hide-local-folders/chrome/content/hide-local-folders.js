@@ -1,5 +1,7 @@
+'use strict';
+
 var hideLocalFolders = {
-	//These translations were compiled from http://releases.mozilla.org/pub/mozilla.org/thunderbird/releases/latest/linux-i686/xpi/
+	// These translations were compiled from http://releases.mozilla.org/pub/mozilla.org/thunderbird/releases/latest/linux-i686/xpi/
 	translations: {
 		"ar": "مجلدات محلّيّة",
 		"ast": "Carpetes llocales",
@@ -57,25 +59,25 @@ var hideLocalFolders = {
 		"zh-CN": "本地文件夹",
 		"zh-TW": "本機郵件匣",
 	},
-	
+
 	hideLocalFolders: function(){
-		for(var i = 0; i < gFolderTreeView._modeNames.length; i++){
+		for(let i = 0; i < gFolderTreeView._modeNames.length; i++){
 			let viewName = gFolderTreeView._modeNames[i];
 			let view = gFolderTreeView.getFolderTreeMode(viewName);
-			
-			//Store the old function that generates the folder view, we need it later
+
+			// Store the old function that generates the folder view, we need it later
 			view.hideLocalFolders_oldFunction = view.generateMap;
 
-			//Override the old function with our new one that strips local folders
+			// Override the old function with our new one that strips local folders
 			view.generateMap = function(ftv){
-				//Call the original function first to get the full list of folder rows.
-				//We use .call() here to preserve the context of "this" within the function.
-				//Without it, smart (unified) folders fail to load.
+				// Call the original function first to get the full list of folder rows.
+				// We use .call() here to preserve the context of "this" within the function.
+				// Without it, smart (unified) folders fail to load.
 				let ftvItems = this.hideLocalFolders_oldFunction.call(view, ftv);
-				
-				//Remove the "Local Folder" row that was returned
-				for(var j = 0; j < ftvItems.length; j++){
-					for(var key in hideLocalFolders.translations){
+
+				// Remove the "Local Folder" row that was returned
+				for(let j = 0; j < ftvItems.length; j++){
+					for(let key in hideLocalFolders.translations){
 						if(ftvItems[j].text == hideLocalFolders.translations[key]){
 							ftvItems.splice(j, 1);
 							break;
@@ -84,9 +86,9 @@ var hideLocalFolders = {
 				}
 
 				return ftvItems;
-			}
+			};
 		}
 	}
-}
+};
 
 hideLocalFolders.hideLocalFolders();
