@@ -16,7 +16,9 @@ Keeps all messages in the [Gmail] IMAP folder marked as read.  Useful for the dr
 Keeps all messages in Thunderbird junk folders, and folders named "junk" or "spam", marked as read.  Useful for IMAP servers that pre-sort junk mail, potentially leaving you with a junk folder constantly filling up with unread messages.
 
 ## Building
-A .xpi file is just a zip file; so, to "build" from source, just create a zip file of the contents of each addon directory and change the extension to .xpi.
+Run the `build` script in this repo to build all of the addons at once.
+
+An .xpi file is just a zip file; so, to "build" from source, just create a zip file of the contents of each addon directory and change the extension to .xpi.
 
 ## Installing
 Download any of the .xpi files in this repository and add them to Thunderbird using the Tools->Addons dialog.

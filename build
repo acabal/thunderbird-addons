@@ -1,0 +1,10 @@
+#!/bin/bash
+
+cd enhanced-desktop-notifications
+zip -q -r ../enhanced-desktop-notifications.xpi *
+
+cd ../hide-local-folders
+zip -q -r ../hide-local-folders.xpi *
+
+cd ../mark-junk-read
+zip -q -r ../mark-junk-read.xpi *
