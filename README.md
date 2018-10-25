@@ -9,6 +9,9 @@ Uses notify-send to provide new mail notifications with a nicer icon, grouped no
 ### Hide Local Folders
 Hides the "Local Folders" entry in the folder pane.  Local folders will continue to work as usual, they're just not displayed.
 
+### Mark GMail Read
+Automatically marks all messages in the [Gmail] folder and all subfolders as read. If your GMail uses localized (translated) Gmail folder names, you set them in Thunderbird preferences: extensions.mark_gmail_read.folder_names.(all_mail|important|starred).
+
 ### Mark Junk Read
 Keeps all messages in Thunderbird junk folders, and folders named "junk" or "spam", marked as read.  Useful for IMAP servers that pre-sort junk mail, potentially leaving you with a junk folder constantly filling up with unread messages.
 
