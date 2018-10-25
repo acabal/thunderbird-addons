@@ -8,3 +8,6 @@ zip -q -r ../hide-local-folders.xpi *
 
 cd ../mark-junk-read
 zip -q -r ../mark-junk-read.xpi *
+
+cd ../mark-gmail-read
+zip -q -r ../mark-gmail-read.xpi *
