@@ -100,8 +100,6 @@ function startup(data, reason){
 	markGmailRead.MSG_FOLDER_GMAIL_IMPORTANT = prefs.getStringPref("folder_names.important", markGmailRead.MSG_FOLDER_GMAIL_IMPORTANT);
 	markGmailRead.MSG_FOLDER_GMAIL_STARRED = prefs.getStringPref("folder_names.starred", markGmailRead.MSG_FOLDER_GMAIL_STARRED);
 
-	console.log("Mark GMail Read: Addon started. Not marking directories '" + markGmailRead.MSG_FOLDER_GMAIL_ALL_MAIL + "', '" + markGmailRead.MSG_FOLDER_GMAIL_IMPORTANT + "' and '" + markGmailRead.MSG_FOLDER_GMAIL_STARRED + "' read, because that would mess with the emails in other folders. Please, make sure these names correspond to the names you really see in the folder pane under the [GMail] folder, otherwise bad things can happen. Set these names as extensions.mark_gmail_read.(all_mail|important|starred).");
-
 	// Set up the core object
 	markGmailRead.mailSession = Components.classes["@mozilla.org/messenger/services/session;1"].getService(Components.interfaces.nsIMsgMailSession);
 	markGmailRead.notifyFlags = Components.interfaces.nsIFolderListener.all;
