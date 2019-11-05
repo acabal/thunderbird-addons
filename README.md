@@ -16,9 +16,18 @@ Hides the "Local Folders" entry in the folder pane.  Local folders will continue
 
 ## Mark Gmail Read
 
-Automatically marks all messages in the "[Gmail]" folder and all subfolders as read. If your GMail uses localized (translated) Gmail folder names, you set them in Thunderbird preferences:
+Automatically marks all messages in the "[Gmail]" folder and all subfolders as read. 
 
-`extensions.mark_gmail_read.folder_names.(all_mail|important|starred)`
+**IMPORTANT!**
+If your GMail uses localized (translated) Gmail folder names, you have to set three of them in [Thunderbird preferences](https://support.mozilla.org/en-US/kb/config-editor):
+
+```
+extensions.mark_gmail_read.folder_names.all_mail = "All mail"
+extensions.mark_gmail_read.folder_names.important = "Important"
+extensions.mark_gmail_read.folder_names.starred = "Starred"
+```
+
+If these names do not correspond to the actually shown folder names under the "[GMail]" folder, you can expect unwanted behavior, e.g. marking all messages in all folders as read.
 
 [→ Add-on page](https://addons.thunderbird.net/en-US/thunderbird/addon/mark-gmail-read/)
 

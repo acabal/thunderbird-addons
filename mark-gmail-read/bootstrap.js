@@ -1,8 +1,8 @@
 'use strict';
 
-ChromeUtils.import("resource:///modules/iteratorUtils.jsm");
-ChromeUtils.import("resource:///modules/mailServices.js");
-ChromeUtils.import("resource://gre/modules/XPCOMUtils.jsm");
+Components.utils.import("resource:///modules/iteratorUtils.jsm");
+ChromeUtils.import("resource:///modules/MailServices.jsm");
+const { XPCOMUtils } = ChromeUtils.import("resource://gre/modules/XPCOMUtils.jsm");
 
 var markGmailRead = {
 	MSG_FOLDER_GMAIL: '[Gmail]',
