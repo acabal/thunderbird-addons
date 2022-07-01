@@ -5,7 +5,7 @@
 "version": "3.0.2",
 "applications": {
       "gecko": {
-            "id": "{3550f703-e582-4d05-9a08-453d09bdfdc6}",
+            "id": "mark-gmail-read@peci1.cz",
             "strict_min_version": "78.0",
             "strict_max_version": "102.*"
             }
