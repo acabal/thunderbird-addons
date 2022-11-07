@@ -1,30 +1,25 @@
 {
-"manifest_version": 2,
-"name": "Mark GMail Read",
-"description": "Automatically marks all messages in the [Gmail] folder and all subfolders as read. IMPORTANT! If your GMail uses localized (translated) Gmail folder names, you have to set three of them in Thunderbird preferences: extensions.mark_gmail_read.folder_names.(all_mail|important|starred). If these names do not correspond to the actually shown folder names under the [GMail] folder, you can expect unwanted behavior, e.g. marking all messages in all folders as read.",
-"version": "3.0.2",
-"applications": {
-      "gecko": {
-            "id": "mark-gmail-read@peci1.cz",
-            "strict_min_version": "78.0",
-            "strict_max_version": "102.*"
-            }
-      },
-"author": "Alex Cabal",
-"homepage_url": "https://alexcabal.com",
-"background": {
+  "manifest_version": 2,
+  "name": "Mark GMail Read",
+  "description": "Automatically marks all messages in the [Gmail] folder and all subfolders as read.",
+  "version": "4.0.0",
+  "applications": {
+    "gecko": {
+      "id": "mark-gmail-read@peci1.cz",
+      "strict_min_version": "102.0"
+    }
+  },
+  "author": "Martin Pecka",
+  "homepage_url": "https://github.com/peci1/thunderbird-addons",
+  "permissions": [
+    "accountsRead",
+    "messagesRead",
+    "notifications",
+    "storage"
+  ],
+  "background": {
     "scripts": [
       "background.js"
     ]
-  },
-"experiment_apis": {
-    "BootstrapLoader": {
-      "schema": "api/BootstrapLoader/schema.json",
-      "parent": {
-        "scopes": ["addon_parent"],
-        "paths": [["BootstrapLoader"]],
-        "script": "api/BootstrapLoader/implementation.js"
-      }
-    }
   }
 }
