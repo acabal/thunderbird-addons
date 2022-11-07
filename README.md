@@ -1,3 +1,5 @@
+*These addons are not compatible with modern Thunderbird versions, and are no longer maintained.*
+
 # Thunderbird Addons
 
 A handful of simple Thunderbird addons that I've developed and found helpful.
