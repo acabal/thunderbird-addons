@@ -1,17 +1,9 @@
 let folder = null;
 
-const Choice = {
-  Yes: 0,
-  No: 1,
-  Never: 2,
-  NeverSession: 3,
-}
-
-const Actions = {
-  [Choice.Yes]: "mgrApprove",
-  [Choice.No]: null,
-  [Choice.Never]: "mgrNever",
-  [Choice.NeverSession]: "mgrNeverSession",
+const Persist = {
+  Dont: "dont",
+  Forever: "forever",
+  Session: "session",
 }
 
 function load() {
@@ -26,25 +18,29 @@ function load() {
 
   document.getElementById("text").innerHTML = "Allow marking " + numUnread + " or more messages in folder <b>" + account + folder.path + "</b> as read?";
 
-  document.getElementById("yes").onclick = async () => {await submit(Choice.Yes);};
-  document.getElementById("no").onclick = async () => {await submit(Choice.No);};
-  document.getElementById("never").onclick = async () => {await submit(Choice.Never);};
-  document.getElementById("neverSession").onclick = async () => {await submit(Choice.NeverSession);};
+  document.getElementById("yes").onclick = async () => {await submit(true);};
+  document.getElementById("no").onclick = async () => {await submit(false);};
 }
 
-async function executeAction(action) {
-  if (action === null)
-    return;
-
-  await messenger.runtime.sendMessage({"action": action, "folder": folder});
+async function executeAction(approve, persist) {
+  await messenger.runtime.sendMessage({"action": "mgrApprove", "approve": approve, "persist": Persist[persist], "folder": folder});
 }
 
-async function submit(choice) {
+async function submit(approve) {
   if (!folder)
     return;
 
-  let action = Actions[choice];
-  await executeAction(action);
+  let persist = Persist.Dont;
+  for (let key in Persist) {
+    let el = document.getElementById(Persist[key]);
+    if (el && el.checked)
+    {
+      persist = key;
+      break;
+    }
+  }
+
+  await executeAction(approve, persist);
 
   window.close();
 }

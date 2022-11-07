@@ -10,10 +10,16 @@
 <body>
 <p id="text"></p>
 <form>
-    <input type="button" id="yes" value="Yes">
-    <input type="button" id="no" value="No">
-    <input type="button" id="never" value="Never for this folder">
-    <input type="button" id="neverSession" value="Never in this session">
+    <div>
+        <input type="button" id="yes" value="Yes"/>
+        <input type="button" id="no" value="No"/>
+    </div>
+    <div>Remember decision for this folder: </div>
+    <div>
+        <input type="radio" name="persist" id="dont" checked="checked"/><label for="dont">Do not remember</label>
+        <input type="radio" name="persist" id="forever"/><label for="forever">Forever</label>
+        <input type="radio" name="persist" id="session"/><label for="session">Until I close Thunderbird</label>
+    </div>
 </form>
 <script src="approve.js"></script>
 </body>

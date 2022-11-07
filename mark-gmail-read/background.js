@@ -2,7 +2,9 @@ const MSG_FOLDER_GMAIL = '[Gmail]';
 let NUM_MESSAGES_TO_APPROVE = 10;
 let foldersForApproval = new Set();
 let approvalWindows = {};
+let approvedFolders = new Set();
 let blacklistedFolders = new Set();
+let approvedFoldersSession = new Set();
 let blacklistedFoldersSession = new Set();
 
 async function* iterateMessageList(messageList) {
@@ -46,17 +48,29 @@ async function handleMessage(message, sender, sendResponse) {
     switch (message.action)
     {
       case "mgrApprove":
-        console.warn("MGR: Approved marking messages in " + message.folder.path + " as read.");
-        processFolder(message.folder, true);
-        break;
-      case "mgrNever":
-        console.log("MGR: Will not mark messages from " + key + " as read.");
-        blacklistedFolders.add(key);
-        messenger.storage.local.set({ blacklisted: [...blacklistedFolders] });
-        break;
-      case "mgrNeverSession":
-        console.log("MGR: Will not mark messages from " + key + " as read in this session.");
-        blacklistedFolders.add(key);
+        if (message.approve) {
+          console.warn("MGR: Approved marking messages in " + message.folder.path + " as read.");
+          processFolder(message.folder, true);
+        }
+        if (message.persist === "forever") {
+          if (message.approve) {
+            console.log("MGR: Will always mark messages from " + key + " as read.");
+            approvedFolders.add(key);
+            messenger.storage.local.set({ approved: [...approvedFolders] });
+          } else {
+            console.log("MGR: Will not mark messages from " + key + " as read.");
+            blacklistedFolders.add(key);
+            messenger.storage.local.set({ blacklisted: [...blacklistedFolders] });
+          }
+        } else if (message.persist === "session") {
+          if (message.approve) {
+            console.log("MGR: Will always mark messages from " + key + " as read in this session.");
+            approvedFoldersSession.add(key);
+          } else {
+            console.log("MGR: Will not mark messages from " + key + " as read in this session.");
+            blacklistedFoldersSession.add(key);
+          }
+        }
         break;
     }
   }
@@ -96,7 +110,8 @@ function onWindowRemoved(windowId)
 async function processFolder(folder, hasPermission = false) {
   messenger.messages.query({"folder": folder, "unread": true, "includeSubFolders": true}).then(
     async (messageList) => {
-      if (!hasPermission && messageList.messages.length > NUM_MESSAGES_TO_APPROVE)
+      let key = getFolderKey(folder);
+      if (!hasPermission && messageList.messages.length > NUM_MESSAGES_TO_APPROVE && !approvedFolders.has(key) && !approvedFoldersSession.has(key))
       {
         askForPermission(folder, messageList.messages.length);
         return;
@@ -124,6 +139,7 @@ async function load() {
   console.log("MGR: load started");
 
   let config = await messenger.storage.local.get({
+    approved: [],
     blacklisted: [],
     updateNoticeShown: false,
     numMessagesToApprove: NUM_MESSAGES_TO_APPROVE,
@@ -139,6 +155,11 @@ async function load() {
       "If you have any comments to this new approach, let me know at addons.thunderbird.net."
     messenger.notifications.create({type: "basic", title: "Mark GMail Read", message: msg});
     messenger.storage.local.set({updateNoticeShown: true});
+  }
+
+  for (let key of config.approved) {
+    approvedFolders.add(key);
+    console.log("MGR: Will always mark messages from " + key + " as read.");
   }
 
   for (let key of config.blacklisted) {
