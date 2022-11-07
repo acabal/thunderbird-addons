@@ -16,7 +16,8 @@ function load() {
     "type": params.get("type"),
   }
 
-  document.getElementById("text").innerHTML = "Allow marking " + numUnread + " or more messages in folder <b>" + account + folder.path + "</b> as read?";
+  document.getElementById("numUnread").innerText = "" + numUnread;
+  document.getElementById("folderName").innerText = account + folder.path;
 
   document.getElementById("yes").onclick = async () => {await submit(true);};
   document.getElementById("no").onclick = async () => {await submit(false);};
